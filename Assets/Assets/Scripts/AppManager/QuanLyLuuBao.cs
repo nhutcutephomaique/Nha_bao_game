@@ -19,25 +19,23 @@ public class QuanLyLuuBao : MonoBehaviour
     public Transform contentLuuBao;
     public GameObject itemBaiBaoPrefab;
 
-    [Header("Trình phát video (Màn chiếu)")]
-    public VideoPlayer mayPhatVideo; // Kéo Video Player vào đây trên Inspector
+    // Biến cờ static để phân biệt đang mở từ đâu
+    public static bool dangChonMediaChoSoanBao = false;
 
     private bool daChonAnh = false;
     private bool daChonVideo = false;
-    private static bool dangChonMediaChoSoanBao = false;
 
-    // Lưu trữ VideoClip của từng nút được gắn trực tiếp qua Inspector của nút
-    public VideoClip videoTamThoi;
-
+    // 1. Mở cửa sổ từ nút "Chọn video" trong bảng Soạn Báo
     public void MoVideoDeChon()
     {
-        dangChonMediaChoSoanBao = true;
+        dangChonMediaChoSoanBao = true; // Đánh dấu là đang mở để chọn đính kèm
         if (windowVideo != null) windowVideo.SetActive(true);
     }
 
+    // 2. Mở cửa sổ từ icon ngoài Desktop (để xem video bình thường)
     public void MoWindowVideoBinhThuong()
     {
-        dangChonMediaChoSoanBao = false;
+        dangChonMediaChoSoanBao = false; // Đánh dấu là mở xem giải trí
         if (windowVideo != null) windowVideo.SetActive(true);
     }
 
@@ -46,27 +44,24 @@ public class QuanLyLuuBao : MonoBehaviour
         if (windowAnh != null) windowAnh.SetActive(true);
     }
 
-    // Hàm duy nhất nhận sự kiện khi bấm vào các item video con
-    public void OnClickItemVideo(VideoClip clipCuaNut)
+    // 3. Hàm xử lý khi click vào item video con
+    public void OnClickItemVideo()
     {
         if (dangChonMediaChoSoanBao)
         {
-            // --- KHI ĐANG SOẠN BÁO: CHỈ CHỌN ---
+            // --- NẾU ĐANG TRONG TIẾN TRÌNH SOẠN BÁO ---
+            // Chỉ ghi nhận đã chọn video, đổi tên nút, đóng cửa sổ lại và CHẶN không cho phát video
             daChonVideo = true;
             if (textBtnChonVideo != null) textBtnChonVideo.text = "Đã chọn video";
             if (windowVideo != null) windowVideo.SetActive(false);
+
+            // Reset lại cờ ngay sau khi chọn xong
             dangChonMediaChoSoanBao = false;
         }
         else
         {
-            // --- KHI XEM BÌNH THƯỜNG: PHÁT VIDEO ---
-            if (mayPhatVideo != null && clipCuaNut != null)
-            {
-                mayPhatVideo.gameObject.SetActive(true);
-                mayPhatVideo.enabled = true;
-                mayPhatVideo.clip = clipCuaNut;
-                mayPhatVideo.Play();
-            }
+            // --- NẾU MỞ TỪ DESKTOP ---
+            // Không làm gì cả, để mặc kệ cho script quản lý video của bạn tự động phát như bình thường!
         }
     }
 
@@ -77,6 +72,7 @@ public class QuanLyLuuBao : MonoBehaviour
         if (windowAnh != null) windowAnh.SetActive(false);
     }
 
+    // 4. Lưu bài báo vào Window_LuuBao
     public void NhanNutLuu()
     {
         if (inputNoiDung == null || (string.IsNullOrEmpty(inputNoiDung.text) && !daChonAnh && !daChonVideo))
@@ -101,6 +97,7 @@ public class QuanLyLuuBao : MonoBehaviour
         NhanNutClear();
     }
 
+    // 5. Clear / Reset form
     public void NhanNutClear()
     {
         if (inputNoiDung != null) inputNoiDung.text = "";
